@@ -11,7 +11,7 @@ REQUISITORY_LOCATION = os.path.join(os.getenv("HOME"), \
 
 CONFIGURATION_DIRECTORY = os.getenv("HOME")
 
-# All file and folder with expected to follow.
+# All file and folder to follow.
 # You can use globbing for matching file or folder.
 
 FILES = [
