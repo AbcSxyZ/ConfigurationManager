@@ -6,6 +6,11 @@ import subprocess
 import datetime
 
 class ConfigurationFolder:
+    """
+    Manipulate a configuration folder.
+    Retrieve, create or delete files inside the folder.
+    Perform push and pull request on git requisitory.
+    """
     def __init__(self, directory):
         self.directory = directory
         with self:
@@ -74,7 +79,12 @@ class ConfigurationFolder:
         self.push(session_files, "save")
 
     def push(self, added_files, action):
-        if os.path.isdir(os.path.join(self.directory, ".git")):
+        """
+        If a configuration folder is a git requisitory,
+        push current modifications.
+        Can add/modify or delete files.
+        """
+        if self.git:
             date = str(datetime.datetime.now())
             date = date.split('.')[0]
             commit_msg = "Update : {} configuration files - {}.".\
@@ -84,6 +94,9 @@ class ConfigurationFolder:
             subprocess.run(["git", "push"])
 
     def pull(self):
+        """
+        Pull request on git requisitory.
+        """
         if self.git:
             with self:
                 subprocess.run(["git", "pull"])
