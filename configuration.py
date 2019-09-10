@@ -20,4 +20,5 @@ FILES = [
         ".tmux.conf",
         ".zshrc",
         ".vimrc_plugins",
+        "important",
         ]

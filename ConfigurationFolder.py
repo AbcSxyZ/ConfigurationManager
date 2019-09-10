@@ -1,4 +1,4 @@
-from distutils.dir_util import copy_tree
+from distutils import dir_util
 import os
 import glob
 import configuration as conf
@@ -39,7 +39,7 @@ class ConfigurationFolder:
             for pattern in pattern_list:
                 for pathname in glob.glob(pattern):
                     if os.path.isdir(pathname):
-                        distutils.dir_util.remove_tree(pathname)
+                        dir_util.remove_tree(pathname)
                     elif os.path.isfile(pathname):
                         os.unlink(pathname)
                     modified_files.append(pathname)
@@ -74,7 +74,7 @@ class ConfigurationFolder:
                 with open(save_file, "r") as src, open(local_location, "w") as dst:
                     res = dst.write(src.read())
             elif os.path.isdir(save_file):
-                copy_tree(save_file, local_location)
+                dir_util.copy_tree(save_file, local_location)
             session_files.append(local_location)
         self.push(session_files, "save")
 
