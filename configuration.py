@@ -3,7 +3,7 @@ import os
 # Specify your git requisitory used for synchronization.
 
 REQUISITORY_LOCATION = os.path.join(os.getenv("HOME"), \
-        "Documents/configuration/")
+    "Documents/configuration/")
 
 # Configuration folder of your local machine.
 # HOME can be used. Search are perfomed with

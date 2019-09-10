@@ -5,6 +5,7 @@ import configuration as conf
 import os
 import sys
 from ConfigurationFolder import ConfigurationFolder
+from diff import DiffTool
 
 
 def get_options():
@@ -25,8 +26,11 @@ def get_options():
             help="Save local configuration to the remote requisitory.")
     group.add_argument("--rm", metavar="pattern", nargs="+", \
             help="Pattern to remove from the configuration.")
+    group.add_argument("--status", "-S", action="store_true", \
+            help="Get current diff for the 2 folders.")
     options = parser.parse_args()
-    if options.rm is None and options.save == options.load == False:
+    if options.rm is None and \
+            not any([options.save, options.load, options.status]):
         parser.print_help()
         exit(1)
     return options
@@ -40,16 +44,19 @@ def main():
         local_conf.remove_files(options.rm)
         remote_conf.remove_files(options.rm)
         return 0
+    elif options.status:
+        return DiffTool(local_conf, remote_conf).display_diff()
     elif options.load:
         dest_config = local_conf
         src_config = remote_conf
     elif options.save:
         dest_config = remote_conf
         src_config = local_conf
+
     moved_files = src_config.retrieve_files()
     with dest_config:
         dest_config.save_files(moved_files, src_config.directory)
     return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

@@ -5,6 +5,27 @@ import configuration as conf
 import subprocess
 import datetime
 
+def pull_wrap(function):
+    """
+    Try to pull the content of the remote requisitory
+    before the function's calling.
+    """
+    def wrapper(self, *args, **kwargs):
+        self.pull()
+        return function(self, *args, **kwargs)
+    return wrapper
+
+def cd_config(function):
+    """
+    Decorate ConfigurationFolder function to
+    move in the directory of the configuration.
+    """
+    def directory_wrap(self, *args, **kwargs):
+        with self:
+            return function(self, *args, **kwargs)
+    return directory_wrap
+
+
 class ConfigurationFolder:
     """
     Manipulate a configuration folder.
@@ -16,34 +37,84 @@ class ConfigurationFolder:
         with self:
             self.git = os.path.isdir(os.path.join(self.directory, ".git"))
 
-    def retrieve_files(self):
+    @pull_wrap
+    def retrieve_files(self, pattern=None):
         """
         For the given directory, retrieve all matching files according
         to the configuration. All file who will be saved or
         loaded depending of the user action.
+        Retrieve only files, perform recursive search on directories.
         """
-        self.pull()
         expected_files = []
         for filepattern in conf.FILES:
             filepattern = os.path.join(self.directory, filepattern)
-            expected_files.extend(glob.glob(filepattern))
+
+            # Recursive file search for a directory
+            if os.path.isdir(filepattern):
+                expected_files.extend(self.folder_parse(filepattern))
+
+            # Retrieve globbing match and perform recursive search
+            # on directory or append the regular file.
+            else:
+                for path in glob.glob(filepattern):
+                    if os.path.isdir(path):
+                        expected_files.extend(self.folder_parse(path))
+                    elif os.path.isfile(path):
+                        expected_files.append(path)
         return expected_files
 
+    def folder_parse(self, foldername):
+        """
+        List all filename containing in the given foldername.
+        Search recursively all files.
+        """
+        dirfiles = os.listdir(foldername)
+        list_files = []
+        for filename in dirfiles:
+            filename = os.path.join(foldername, filename)
+            if os.path.isdir(filename):
+                list_files.extend(self.folder_parse(filename))
+            elif os.path.isfile(filename):
+                list_files.append(filename)
+        return list_files
+
+
+    def cleaned_files(self):
+        """
+        Retrieve all configuration files and folder, but remove
+        the directory name from the path.
+        Get relative directory from the configuration directory.
+        """
+        config_files = self.retrieve_files()
+        len_dirname = len(self.directory)
+        clean_files = []
+        for filename in config_files:
+            clean_name = filename.replace(self.directory, "")
+            if clean_name[0] == "/":
+                clean_name = clean_name[1:]
+            clean_files.append(clean_name)
+        return clean_files
+
+    @cd_config
     def remove_files(self, pattern_list):
         """
         Remove files according to a list of globbing pattern.
         Remove regular and directory files.
         """
-        with self:
-            modified_files = []
-            for pattern in pattern_list:
-                for pathname in glob.glob(pattern):
-                    if os.path.isdir(pathname):
-                        dir_util.remove_tree(pathname)
-                    elif os.path.isfile(pathname):
-                        os.unlink(pathname)
-                    modified_files.append(pathname)
-            self.push(modified_files, "delete")
+        print(pattern_list)
+        modified_files = []
+        for pattern in pattern_list:
+            for pathname in glob.glob(pattern):
+                if os.path.isdir(pathname):
+                    dir_util.remove_tree(pathname)
+                elif os.path.isfile(pathname):
+                    os.unlink(pathname)
+                modified_files.append(pathname)
+                if pattern in conf.FILES:
+                    msg = "{} : remove {} from the configuration" + \
+                    " to avoid the tracking."
+                    print(msg.format(sys.argv[0], pattern))
+        self.push(modified_files, "delete")
 
     def check_folder(self, filename):
         """
@@ -100,6 +171,7 @@ class ConfigurationFolder:
         if self.git:
             with self:
                 subprocess.run(["git", "pull"])
+
 
     def __enter__(self):
         self._save_dir = os.getcwd()
