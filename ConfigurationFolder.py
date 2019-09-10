@@ -4,6 +4,7 @@ import glob
 import configuration as conf
 import subprocess
 import datetime
+from colors import *
 
 def pull_wrap(function):
     """
@@ -24,6 +25,19 @@ def cd_config(function):
         with self:
             return function(self, *args, **kwargs)
     return directory_wrap
+
+def git_log(function):
+    """
+    Delimitate git logs with colors.
+    """
+    def git_wrapper(self, *args, **kwargs):
+        if self.git == False:
+            return function(self, *args, **kwargs)
+        print(YELLOW + "--------- Git Log ---------\n" + RESET)
+        status = function(self, *args, **kwargs)
+        print(YELLOW + "\n---------------------------" + RESET)
+        return status
+    return git_wrapper
 
 
 class ConfigurationFolder:
@@ -149,6 +163,7 @@ class ConfigurationFolder:
             session_files.append(local_location)
         self.push(session_files, "save")
 
+    @git_log
     def push(self, added_files, action):
         """
         If a configuration folder is a git requisitory,
@@ -164,6 +179,7 @@ class ConfigurationFolder:
             subprocess.run(["git", "commit", "-m", commit_msg])
             subprocess.run(["git", "push"])
 
+    @git_log
     def pull(self):
         """
         Pull request on git requisitory.
