@@ -115,7 +115,6 @@ class ConfigurationFolder:
         Remove files according to a list of globbing pattern.
         Remove regular and directory files.
         """
-        print(pattern_list)
         modified_files = []
         for pattern in pattern_list:
             for pathname in glob.glob(pattern):
