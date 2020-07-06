@@ -18,8 +18,15 @@ CONFIGURATION_DIRECTORY = os.getenv("HOME")
 FILES = [
         ".vimrc",
         ".vim/local/",
+        ".vim/",
         ".tmux.conf",
         ".zshrc",
         ".vimrc_plugins",
         "important",
+        ]
+
+SHELL = "zsh"
+
+PROGRAMS = [
+        "tmux",
         ]

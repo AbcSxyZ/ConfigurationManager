@@ -31,10 +31,37 @@ class Installer:
             raise InstallError(err_msg.format(clone_cmd.returncode))
 
         self.move_files()
+        self.install_programs()
+        self.configure_shell()
 
     def move_files(self):
+        """
+        When the remote repository is cloned, transfer file
+        to the compture local CONFIGURATION_DIRECTORY.
+        """
         local_conf = ConfigurationFolder(conf.CONFIGURATION_DIRECTORY)
         remote_conf = ConfigurationFolder(conf.REQUISITORY_LOCATION)
 
         file_to_save = remote_conf.retrieve_files()
         local_conf.save_files(remote_conf.retrieve_files(), remote_conf.directory)
+
+    def configure_shell(self):
+        """
+        Setup SHELL indicated in configuration as the default shell.
+        """
+        shell_path = subprocess.check_output(['which', conf.SHELL]).decode()
+        subprocess.run(["chsh", "--shell", shell_path])
+
+    def install_programs(self):
+        """
+        Install list of default programs indicated by PROGRAMS config.
+        """
+        list_programs = [conf.SHELL] + conf.PROGRAMS
+
+        for program in list_programs:
+            check_exists = subprocess.run(["which", program])
+            if check_exists.returncode != 0:
+                subprocess.run(["sudo", "apt", "install", "-y", program])
+
+
+
