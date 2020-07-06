@@ -18,7 +18,7 @@ CONFIGURATION_DIRECTORY = os.getenv("HOME")
 FILES = [
         ".vimrc",
         ".vim/local/",
-        ".vim/",
+        ".vim/bundle/Vundle.vim/autoload",
         ".tmux.conf",
         ".zshrc",
         ".vimrc_plugins",
@@ -29,4 +29,13 @@ SHELL = "zsh"
 
 PROGRAMS = [
         "tmux",
+        "curl",
+        "wget"
         ]
+
+INSTALL_SCRIPT = {
+        "urls" : [
+            "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+            ],
+        "local" : [],
+        }

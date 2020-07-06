@@ -30,9 +30,10 @@ class Installer:
             err_msg = "git clone failed with status {}."
             raise InstallError(err_msg.format(clone_cmd.returncode))
 
+        self.run_scripts()
         self.move_files()
         self.install_programs()
-        self.configure_shell()
+        # self.configure_shell()
 
     def move_files(self):
         """
@@ -45,12 +46,12 @@ class Installer:
         file_to_save = remote_conf.retrieve_files()
         local_conf.save_files(remote_conf.retrieve_files(), remote_conf.directory)
 
-    def configure_shell(self):
-        """
-        Setup SHELL indicated in configuration as the default shell.
-        """
-        shell_path = subprocess.check_output(['which', conf.SHELL]).decode()
-        subprocess.run(["chsh", "--shell", shell_path])
+    # def configure_shell(self):
+    #     """
+    #     Setup SHELL indicated in configuration as the default shell.
+    #     """
+    #     shell_path = subprocess.check_output(['which', conf.SHELL]).decode()
+    #     subprocess.run(["chsh", "--shell", shell_path])
 
     def install_programs(self):
         """
@@ -59,9 +60,29 @@ class Installer:
         list_programs = [conf.SHELL] + conf.PROGRAMS
 
         for program in list_programs:
-            check_exists = subprocess.run(["which", program])
+            check_exists = subprocess.run(["which", program],
+                    stdout=subprocess.DEVNULL)
             if check_exists.returncode != 0:
                 subprocess.run(["sudo", "apt", "install", "-y", program])
 
+    def run_scripts(self):
+        for script_filename in conf.INSTALL_SCRIPT['urls']:
+            script = self.get_raw_script(script_filename, curl=True)
+            subprocess.run([conf.SHELL, "-c", script]) 
 
+        for script_filename in conf.INSTALL_SCRIPT['local']:
+            script = self.get_raw_script(script_filemane)
+            subprocess.run([conf.SHELL, "-c", script]) 
 
+    @staticmethod
+    def get_raw_script(filename, curl=False):
+        """
+        Retrieve an installation shell script, remotely or localy.
+        Return content of the shell script.
+        """
+        if curl:
+            return subprocess.check_output(["curl", filename]).decode()
+
+        with open(filename, "r") as script_file:
+            content = script_file.read()
+        return content
