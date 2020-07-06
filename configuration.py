@@ -19,6 +19,7 @@ FILES = [
         ".vimrc",
         ".vim/local/",
         ".vim/bundle/Vundle.vim/autoload",
+        ".vim/colors/",
         ".tmux.conf",
         ".zshrc",
         ".vimrc_plugins",
