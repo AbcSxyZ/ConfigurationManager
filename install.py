@@ -30,9 +30,9 @@ class Installer:
             err_msg = "git clone failed with status {}."
             raise InstallError(err_msg.format(clone_cmd.returncode))
 
-        self.run_scripts()
         self.move_files()
         self.install_programs()
+        self.run_scripts()
         # self.configure_shell()
 
     def move_files(self):

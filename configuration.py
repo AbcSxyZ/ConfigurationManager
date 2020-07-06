@@ -30,7 +30,8 @@ SHELL = "zsh"
 PROGRAMS = [
         "tmux",
         "curl",
-        "wget"
+        "wget",
+	"vim",
         ]
 
 INSTALL_SCRIPT = {
