@@ -6,6 +6,7 @@ import os
 import sys
 from ConfigurationFolder import ConfigurationFolder
 from diff import DiffTool
+from install import Installer
 
 
 def get_options():
@@ -28,15 +29,21 @@ def get_options():
             help="Pattern to remove from the configuration.")
     group.add_argument("--status", "-S", action="store_true", \
             help="Get current diff for the 2 folders.")
+    group.add_argument("--install", "-i", action="store_true", \
+            help="Install remote configuration.")
     options = parser.parse_args()
     if options.rm is None and \
-            not any([options.save, options.load, options.status]):
+            not any([options.save, options.load, options.status, 
+                options.install]):
         parser.print_help()
         exit(1)
     return options
 
 def main():
     options = get_options()
+    if options.install:
+        Installer()
+        return None
     local_conf = ConfigurationFolder(conf.CONFIGURATION_DIRECTORY)
     remote_conf = ConfigurationFolder(conf.REQUISITORY_LOCATION)
 
@@ -54,8 +61,7 @@ def main():
         src_config = local_conf
 
     moved_files = src_config.retrieve_files()
-    with dest_config:
-        dest_config.save_files(moved_files, src_config.directory)
+    dest_config.save_files(moved_files, src_config.directory)
     return 0
 
 if __name__ == "__main__":

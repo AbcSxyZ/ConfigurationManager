@@ -2,8 +2,9 @@ import os
 
 # Specify your git requisitory used for synchronization.
 
+REQUISITORY_URL = "https://github.com/AbcSxyZ/configuration.git"
 REQUISITORY_LOCATION = os.path.join(os.getenv("HOME"), \
-    "Documents/configuration/")
+    ".configuration/")
 
 # Configuration folder of your local machine.
 # HOME can be used. Search are perfomed with
@@ -11,7 +12,7 @@ REQUISITORY_LOCATION = os.path.join(os.getenv("HOME"), \
 
 CONFIGURATION_DIRECTORY = os.getenv("HOME")
 
-# All file and folder to follow.
+# All files and folder to follow.
 # You can use globbing for matching file or folder.
 
 FILES = [

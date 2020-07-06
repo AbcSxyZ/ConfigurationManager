@@ -138,6 +138,7 @@ class ConfigurationFolder:
         if len(expected_dir) > 0 and os.path.exists(expected_dir) == False:
             os.makedirs(expected_dir)
 
+    @cd_config
     def save_files(self, files, parent_directory):
         """
         Copy the given list of files which are comming from parent_directory
